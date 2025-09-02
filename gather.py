@@ -9,7 +9,11 @@ folders = []
 items = []
 output = {"folders": folders, "items": items}
 
+username_keys = ("login", "email", "username")
+uri_keys = ("url", "link", "site")
+
 def parse_file(path):
+    username = None
     password = None
     uris = []
     fields = []
@@ -29,18 +33,20 @@ def parse_file(path):
                 password = line
         else:
             k, v = line.split(": ")
-            if k.lower() in ('url', 'link', 'site'):
+            if k.lower() in uri_keys:
                 uris.append({
                     "match": None,
                     "uri": v,
                 })
+            elif k.lower() in username_keys:
+                username = v
             else:
                 fields.append({
                     "name": k,
                     "value": v,
                     "type": 0,
                 })
-    return password, fields, uris
+    return username, password, fields, uris
 
 for dir_name, subdir_list, file_list in os.walk('root'):
     #print(dir_name, subdir_list, file_list)
@@ -52,7 +58,7 @@ for dir_name, subdir_list, file_list in os.walk('root'):
         folder_id = None
 
     for fname in file_list:
-        password, fields, uris = parse_file(os.path.join(dir_name, fname))
+        username, password, fields, uris = parse_file(os.path.join(dir_name, fname))
 
         if folder_id is None:
             item_name = fname
@@ -69,11 +75,12 @@ for dir_name, subdir_list, file_list in os.walk('root'):
             "favorite": False,
             "fields": fields,
             "login": {
+                "username": username,
                 "password": password,
                 "totp": None,
                 "uris": uris,
             },
             "collectionIds": None,
         })
-        
+
 print(json.dumps(output))

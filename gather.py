@@ -3,6 +3,7 @@
 import json
 import os
 import uuid
+import sys
 
 folders = []
 items = []
@@ -22,7 +23,7 @@ def parse_file(path):
             continue
         if ': ' not in line:
             if password:
-                print(f"file {path} has a duplicate password or soemthing (line {i})")
+                sys.stderr.write(f"file {path} has a duplicate password or something (line {i})\n")
                 continue
             else:
                 password = line
